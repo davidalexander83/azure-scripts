@@ -1,5 +1,5 @@
 
-$vms = get-azurermvm -resourcegroupname DAVIDALEXANDER | where Name -Like "da-rhel-03"
+$vms = get-azurermvm -resourcegroupname DAVIDALEXANDER | where Name -Like "da-w2012-0*"
 foreach ($vm in $vms) {
   write-output $VM.Name 
   $location = $vm.Location
@@ -10,6 +10,7 @@ foreach ($vm in $vms) {
   $nic
   $vmConfig = new-azurermvmconfig -VMName $vmName -VMSize "Standard_B2s"
   $newVM = Add-AzureRmVMNetworkInterface -VM $vmConfig -Id $nic.Id
+  $newVM = Set-AzureRmVMOSDisk -VM $newVM -ManagedDiskId $osDisk.Id -CreateOption Attach -Windows
   $newVM = Set-AzureRmVMBootDiagnostics -disable -VM $newVM
   remove-azurermvm -resourcegroupname DAVIDALEXANDER -name $vm.Name
   New-AzureRmVM -resourcegroupname DAVIDALEXANDER -Location $location -VM $newVM
